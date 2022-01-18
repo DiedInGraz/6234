@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cs6234/home/Toolbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:cs6234/pages/Medicines.dart';
 
 class Activity extends StatefulWidget {
   const Activity({Key? key}) : super(key: key);
@@ -51,10 +52,11 @@ class _ActivityState extends State<Activity> {
                           // An action can be bigger than the others.
                           flex: 2,
                           onPressed: (_) {
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => Medicines(widgetMedicine: ds['medicine'], widgetMedicineId: ds.id)));
                           },
                           backgroundColor: Color(0xFF21B7CA),
                           foregroundColor: Colors.white,
-                          icon: Icons.report_problem,
+                          icon: Icons.border_color,
                           label: 'Modify',
                         ),
                         SlidableAction(

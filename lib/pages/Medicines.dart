@@ -5,7 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cs6234/home/Dashboard.dart';
 
 class Medicines extends StatefulWidget {
-  const Medicines({Key? key}) : super(key: key);
+  final String widgetMedicine;
+  final String widgetMedicineId;
+  const Medicines({Key? key, this.widgetMedicine = "", this.widgetMedicineId = ""}) : super(key: key);
 
   @override
   _MedicinesState createState() => _MedicinesState();
@@ -15,6 +17,14 @@ class _MedicinesState extends State<Medicines> {
 
   final firestoreInstance = FirebaseFirestore.instance;
   String medicine = "";
+  String medicineId = "";
+
+  @override
+  void initState() {
+    super.initState();
+    medicine = widget.widgetMedicine;
+    medicineId = widget.widgetMedicineId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,16 +52,23 @@ class _MedicinesState extends State<Medicines> {
               color: Colors.lightBlue,
               child: const Text('Submit Medicines', style: TextStyle(color: Colors.white)),
               onPressed: () async {
-                firestoreInstance.collection("Medicines").add({
-                  "medicine" : medicine,
-                  "submitTime" : Timestamp.now()
-                }).then((value){
-                  print(value.id);
-                  Navigator.pop(context);
-                  // Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) =>
-                  //   const Dashboard()
-                  // ));
-                });
+                if(medicineId != "") {
+                  firestoreInstance.collection("Medicines").doc(medicineId).update({
+                    "medicine" : medicine,
+                    "submitTime" : Timestamp.now()
+                  }).then((value) => Navigator.pop(context));
+                } else {
+                  firestoreInstance.collection("Medicines").add({
+                    "medicine" : medicine,
+                    "submitTime" : Timestamp.now()
+                  }).then((value){
+                    print(value.id);
+                    Navigator.pop(context);
+                    // Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) =>
+                    //   const Dashboard()
+                    // ));
+                  });
+                }
               }
             ),
           )

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cs6234/home/Toolbar.dart';
 import 'package:health/health.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cs6234/auth/Authentication.dart';
 
 class Account extends StatefulWidget {
   const Account({Key? key}) : super(key: key);
@@ -10,11 +12,24 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
+
+  final authInstance = FirebaseAuth.instance;
   HealthFactory health = HealthFactory();
 
   List<HealthDataPoint> _healthDataList = [];
   num totalSteps = 0;
   num totalDistance = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (authInstance.currentUser != null) {
+      print("here");
+    } else {
+      print(authInstance.currentUser);
+      print("not login");
+    }
+  }
 
   ListView _contentDataReady() {
     return ListView.builder(
@@ -27,6 +42,15 @@ class _AccountState extends State<Account> {
             subtitle: Text('${p.dateFrom} - ${p.dateTo}'),
           );
         });
+  }
+
+  isLogin() async {
+    if (authInstance.currentUser != null) {
+      print("here");
+    } else {
+      print("not login");
+    }
+
   }
 
   Future fetchData() async {
@@ -61,6 +85,7 @@ class _AccountState extends State<Account> {
               totalDistance += healthData[i].value;
             }
           }
+          totalDistance = totalDistance.roundToDouble();
         });
 
 
@@ -86,6 +111,17 @@ class _AccountState extends State<Account> {
       body: Column(
         children: [
           const ToolBar(title: "Account"),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
+            child: MaterialButton(
+              //minWidth: double.infinity,
+                color: Colors.lightBlue,
+                child: const Text('Testing login authentication', style: TextStyle(color: Colors.white)),
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Authentication()));
+                }
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
             child: MaterialButton(
