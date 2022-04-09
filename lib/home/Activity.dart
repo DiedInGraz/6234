@@ -14,6 +14,31 @@ class Activity extends StatefulWidget {
 class _ActivityState extends State<Activity> {
   final firestoreInstance = FirebaseFirestore.instance;
 
+  var activitiList = ["Symptom", "Medicines", "Doctor Visit", "Trip", "News", "Take Out Food"];
+  var selectActivity = "Symptom";
+
+  scrollableRow() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: activitiList
+          .map((choice) => FilterChip(
+          backgroundColor: Colors.red,
+          label: Text(
+            choice,
+            style: const TextStyle(color: Colors.white),
+          ),
+          selectedColor: Colors.blue,
+          onSelected: (b) {
+            //selectActivity = b as String;
+            print(choice);
+          }))
+          .toList()),
+    );
+  }
+
   deleteActivities(String documentId) {
     firestoreInstance.collection("Medicines").doc(documentId).delete().then((value){
       print("Success!");
@@ -140,6 +165,7 @@ class _ActivityState extends State<Activity> {
       body: Column(
         children: [
           const ToolBar(title: "Activities"),
+          scrollableRow(),
           Expanded(
             child: showDetail()
           )

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cs6234/home/Toolbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cs6234/home/Dashboard.dart';
 
 class Medicines extends StatefulWidget {
   final String widgetMedicine;
@@ -14,16 +13,24 @@ class Medicines extends StatefulWidget {
 }
 
 class _MedicinesState extends State<Medicines> {
-
+  final authInstance = FirebaseAuth.instance;
   final firestoreInstance = FirebaseFirestore.instance;
   String medicine = "";
   String medicineId = "";
+
+  String? username = "";
 
   @override
   void initState() {
     super.initState();
     medicine = widget.widgetMedicine;
     medicineId = widget.widgetMedicineId;
+    final currentUser = authInstance.currentUser;
+    if (currentUser != null) {
+      username = currentUser.email;
+    } else {
+      print("not login");
+    }
   }
 
   @override
@@ -55,11 +62,13 @@ class _MedicinesState extends State<Medicines> {
                 if(medicineId != "") {
                   firestoreInstance.collection("Medicines").doc(medicineId).update({
                     "medicine" : medicine,
+                    "username" : username,
                     "submitTime" : Timestamp.now()
                   }).then((value) => Navigator.pop(context));
                 } else {
                   firestoreInstance.collection("Medicines").add({
                     "medicine" : medicine,
+                    "username" : username,
                     "submitTime" : Timestamp.now()
                   }).then((value){
                     print(value.id);
