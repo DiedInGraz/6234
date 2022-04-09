@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cs6234/home/Dashboard.dart';
 import 'package:cs6234/home/Activity.dart';
 import 'package:cs6234/home/Account.dart';
+import 'package:cs6234/auth/SignIn.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -11,7 +13,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final authInstance = FirebaseAuth.instance;
   int selectedPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    //getUserInfo();
+  }
+
+  getUserInfo() {
+    if (authInstance.currentUser != null) {
+      print(authInstance.currentUser);
+      print("here");
+    } else {
+      print(authInstance.currentUser);
+      print("not login");
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const SignIn()));
+    }
+  }
 
   final _pageOptions = [
     const Dashboard(),

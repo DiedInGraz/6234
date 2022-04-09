@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cs6234/home/Toolbar.dart';
 import 'package:health/health.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cs6234/auth/Authentication.dart';
+import 'package:cs6234/auth/SignIn.dart';
+import 'package:cs6234/auth/TestImage.dart';
 
 class Account extends StatefulWidget {
   const Account({Key? key}) : super(key: key);
@@ -20,13 +21,18 @@ class _AccountState extends State<Account> {
   num totalSteps = 0;
   num totalDistance = 0;
 
+  String? username = "";
+
   @override
   void initState() {
     super.initState();
-    if (authInstance.currentUser != null) {
+    final currentUser = authInstance.currentUser;
+    if (currentUser != null) {
+      print(currentUser);
+      username = currentUser.email;
       print("here");
     } else {
-      print(authInstance.currentUser);
+      print(currentUser);
       print("not login");
     }
   }
@@ -42,15 +48,6 @@ class _AccountState extends State<Account> {
             subtitle: Text('${p.dateFrom} - ${p.dateTo}'),
           );
         });
-  }
-
-  isLogin() async {
-    if (authInstance.currentUser != null) {
-      print("here");
-    } else {
-      print("not login");
-    }
-
   }
 
   Future fetchData() async {
@@ -111,14 +108,56 @@ class _AccountState extends State<Account> {
       body: Column(
         children: [
           const ToolBar(title: "Account"),
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
+          //   child: MaterialButton(
+          //     //minWidth: double.infinity,
+          //       color: Colors.lightBlue,
+          //       child: const Text('Testing login authentication', style: TextStyle(color: Colors.white)),
+          //       onPressed: () {
+          //         Navigator.of(context).push(MaterialPageRoute(builder: (context) => const SignIn()));
+          //       }
+          //   ),
+          // ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(50, 35, 50, 5),
+            child: Text("Welcome", style: TextStyle(
+                fontFamily: 'Poppins',
+                color: Colors.lightBlue,
+                fontSize: 30.0,
+                fontWeight: FontWeight.w600
+            )),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(30, 15, 30, 5),
+            child: Text(username!, style: const TextStyle(
+                fontFamily: 'Poppins',
+                color: Colors.lightBlue,
+                fontSize: 25.0,
+                fontWeight: FontWeight.w700
+            )),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
             child: MaterialButton(
               //minWidth: double.infinity,
                 color: Colors.lightBlue,
-                child: const Text('Testing login authentication', style: TextStyle(color: Colors.white)),
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Authentication()));
+                child: const Text('Log Out', style: TextStyle(color: Colors.white)),
+                onPressed: () async {
+                  await authInstance.signOut();
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const SignIn()));
+                }
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
+            child: MaterialButton(
+              //minWidth: double.infinity,
+                color: Colors.lightBlue,
+                child: const Text('Test Image Delete Later (Somehow logout. Need to click log out and login back again)', style: TextStyle(color: Colors.white)),
+                onPressed: () async {
+                  await authInstance.signOut();
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const TestPage()));
                 }
             ),
           ),
