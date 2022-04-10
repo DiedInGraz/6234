@@ -30,8 +30,8 @@ class FunctionalityCard extends StatelessWidget {
           case "Doctor Visit":
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Doctor()));
             break;
-          case "Trip":
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Trip()));
+          case "Trips":
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Trips()));
             break;
           case "News":
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => const News()));
