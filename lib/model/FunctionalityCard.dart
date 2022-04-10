@@ -56,7 +56,7 @@ class FunctionalityCard extends StatelessWidget {
             Text(functionality, style: const TextStyle(
                 fontFamily: 'Poppins',
                 color: Colors.blue,
-                fontSize: 25.0,
+                fontSize: 24.0,
                 fontWeight: FontWeight.w500
             ))
           ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cs6234/home/HomePage.dart';
+import 'package:cs6234/home/StartImagePage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Main Page',
-      home: HomePage(),
+      home: StartImagePage(),
     );
   }
 }
