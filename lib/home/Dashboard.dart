@@ -54,7 +54,7 @@ class _DashboardState extends State<Dashboard> {
                   icon: Icons.medical_services,
                 ),
                 FunctionalityCard(
-                  functionality: "Trip",
+                  functionality: "Trips",
                   icon: Icons.beach_access,
                 ),
                 FunctionalityCard(
