@@ -3,7 +3,6 @@ import 'package:cs6234/home/Toolbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:cs6234/pages/Symptom.dart';
 import 'package:cs6234/pages/Medicines.dart';
 import 'package:cs6234/pages/Doctor.dart';
 import 'package:cs6234/pages/Trip.dart';
@@ -22,8 +21,8 @@ class _ActivityState extends State<Activity> {
   final authInstance = FirebaseAuth.instance;
   final firestoreInstance = FirebaseFirestore.instance;
 
-  var activitiList = ["Symptom", "Medicines", "Doctor Visit", "Trip", "News", "Take Out Food", "Apple Health"];
-  var selectActivity = "Symptom";
+  var activitiList = ["Symptoms", "Medicines", "Doctor Visit", "Trip", "News", "Take Out Food", "Apple Health"];
+  var selectActivity = "Symptoms";
   var selectActivityDatabase = "Symptoms";
 
   int? defaultChoiceIndex = 0;
@@ -64,7 +63,7 @@ class _ActivityState extends State<Activity> {
               selectActivity = activitiList[index];
               print(selectActivity);
               switch(selectActivity) {
-                case "Symptom":
+                case "Symptoms":
                   selectActivityDatabase = "Symptoms";
                   break;
                 case "Medicines":
@@ -142,7 +141,7 @@ class _ActivityState extends State<Activity> {
 
   deleteFunctionality(String documentId) {
     switch(selectActivity) {
-      case "Symptom":
+      case "Symptoms":
         deleteSymptom(documentId);
         break;
       case "Medicines":
@@ -171,7 +170,7 @@ class _ActivityState extends State<Activity> {
   detailContent(DocumentSnapshot ds) {
     print(ds.data());
     switch(selectActivity) {
-      case "Symptom":
+      case "Symptoms":
         return RichText(
           text: TextSpan(
             style: const TextStyle(
@@ -184,6 +183,16 @@ class _ActivityState extends State<Activity> {
               const TextSpan(text: "Symptom: "),
               TextSpan(
                 text: ds.data().toString().contains('symptom') ? ds['symptom'].toString() : "",
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  color: Colors.black,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w700
+                )
+              ),
+              const TextSpan(text: " Date: "),
+              TextSpan(
+                text: ds.data().toString().contains('submitTime') ? DateFormat("yyyy-MM-dd").format(ds['submitTime'].toDate()) : "",
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   color: Colors.black,
@@ -213,6 +222,16 @@ class _ActivityState extends State<Activity> {
                   fontSize: 15.0,
                   fontWeight: FontWeight.w700
                 )
+              ),
+              const TextSpan(text: " Date: "),
+              TextSpan(
+                text: ds.data().toString().contains('submitTime') ? DateFormat("yyyy-MM-dd").format(ds['submitTime'].toDate()) : "",
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  color: Colors.black,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w700
+                )
               )
             ]
           ),
@@ -230,6 +249,16 @@ class _ActivityState extends State<Activity> {
               const TextSpan(text: "Doctor: "),
               TextSpan(
                 text: ds.data().toString().contains('doctor') ? ds['doctor'].toString() : "",
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  color: Colors.black,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w700
+                )
+              ),
+              const TextSpan(text: " Date: "),
+              TextSpan(
+                text: ds.data().toString().contains('submitTime') ? DateFormat("yyyy-MM-dd").format(ds['submitTime'].toDate()) : "",
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   color: Colors.black,
@@ -301,6 +330,16 @@ class _ActivityState extends State<Activity> {
                   fontSize: 15.0,
                   fontWeight: FontWeight.w700
                 )
+              ),
+              const TextSpan(text: " Date: "),
+              TextSpan(
+                text: ds.data().toString().contains('submitTime') ? DateFormat("yyyy-MM-dd").format(ds['submitTime'].toDate()) : "",
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  color: Colors.black,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w700
+                )
               )
             ]
           ),
@@ -317,7 +356,17 @@ class _ActivityState extends State<Activity> {
             children: [
               const TextSpan(text: "Food: "),
               TextSpan(
-                text: ds.data().toString().contains('value') ? ds['value'].toString() : "",
+                text: ds.data().toString().contains('food') ? ds['food'].toString() : "",
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  color: Colors.black,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w700
+                )
+              ),
+              const TextSpan(text: " Date: "),
+              TextSpan(
+                text: ds.data().toString().contains('submitTime') ? DateFormat("yyyy-MM-dd").format(ds['submitTime'].toDate()) : "",
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   color: Colors.black,
@@ -365,6 +414,107 @@ class _ActivityState extends State<Activity> {
     }
   }
 
+  showWarning() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection("News").where("alertEmail", isEqualTo: username).orderBy('submitTime', descending: true).snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if(!snapshot.hasData) {
+          return const Center(
+            child: Text("Loading", style: TextStyle(
+              fontFamily: 'Poppins',
+              color: Colors.blue,
+              fontSize: 20.0,
+              fontWeight: FontWeight.w500
+            ))
+          );
+        } else {
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              DocumentSnapshot ds = (snapshot.data!).docs[index];
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 5.0),
+                  child: Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(5.0, 17.0, 5.0, 0.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 12.0),
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: const TextStyle(
+                                            fontFamily: 'Poppins',
+                                            color: Colors.black,
+                                            fontSize: 15.0,
+                                            fontWeight: FontWeight.w400
+                                          ),
+                                          children: [
+                                            const TextSpan(text: "News: "),
+                                            TextSpan(
+                                              text: ds.data().toString().contains('news') ? ds['news'].toString() : "",
+                                              style: const TextStyle(
+                                                fontFamily: 'Poppins',
+                                                color: Colors.black,
+                                                fontSize: 15.0,
+                                                fontWeight: FontWeight.w700
+                                              )
+                                            ),
+                                            const TextSpan(text: " Date: "),
+                                            TextSpan(
+                                              text: ds.data().toString().contains('submitTime') ? DateFormat("yyyy-MM-dd").format(ds['submitTime'].toDate()) : "",
+                                              style: const TextStyle(
+                                                fontFamily: 'Poppins',
+                                                color: Colors.black,
+                                                fontSize: 15.0,
+                                                fontWeight: FontWeight.w700
+                                              )
+                                            ),
+                                            const TextSpan(text: " Warning From: "),
+                                            TextSpan(
+                                              text: ds.data().toString().contains('username') ? ds['username'] : "",
+                                              style: const TextStyle(
+                                                fontFamily: 'Poppins',
+                                                color: Colors.black,
+                                                fontSize: 15.0,
+                                                fontWeight: FontWeight.w700
+                                              )
+                                            ),
+                                          ]
+                                        ),
+                                      )
+                                    ),
+                                  ],
+                                )
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(height: 16.0),
+                      ],
+                    )
+                  ),
+              );
+            },
+            itemCount: (snapshot.data!).docs.length,
+            //padding: new EdgeInsets.symmetric(vertical: 4.0) // distance from bar to the first one
+          );
+        }
+      },
+    );
+  }
+
   showDetail() {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection(selectActivityDatabase).where("username", isEqualTo: username).orderBy('submitTime', descending: true).snapshots(),
@@ -394,28 +544,25 @@ class _ActivityState extends State<Activity> {
                         deleteFunctionality(ds.id);
                       }),
                       children: [
-                        selectActivity != "Apple Health" ? SlidableAction(
+                        selectActivity != "Apple Health"  && selectActivity != "Symptoms" ? SlidableAction(
                           // An action can be bigger than the others.
                           flex: 2,
                           onPressed: (_) {
                             switch(selectActivity) {
-                              case "Symptom":
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => Medicines(widgetMedicine: ds['medicine'], widgetMedicineId: ds.id)));
-                                break;
                               case "Medicines":
                                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => Medicines(widgetMedicine: ds['medicine'], widgetMedicineId: ds.id)));
                                 break;
                               case "Doctor Visit":
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => Medicines(widgetMedicine: ds['medicine'], widgetMedicineId: ds.id)));
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => Doctor(widgetDoctor: ds['doctor'], widgetDoctorId: ds.id)));
                                 break;
                               case "Trip":
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => Medicines(widgetMedicine: ds['medicine'], widgetMedicineId: ds.id)));
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => Trips(widgetTrip: ds['trip'], widgetTripId: ds.id, widgetStartTime: ds['startTime'], widgetEndTime: ds['endTime'])));
                                 break;
                               case "News":
                                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => Medicines(widgetMedicine: ds['medicine'], widgetMedicineId: ds.id)));
                                 break;
                               case "Take Out Food":
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => Medicines(widgetMedicine: ds['medicine'], widgetMedicineId: ds.id)));
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => Food(widgetFood: ds['food'], widgetFoodId: ds.id)));
                                 break;
                               default:
                                 break;
@@ -492,7 +639,8 @@ class _ActivityState extends State<Activity> {
           ),
           Expanded(
             child: showDetail()
-          )
+          ),
+          Expanded(child: selectActivity == "News" ? showWarning() : Container())
         ]
       )
     );

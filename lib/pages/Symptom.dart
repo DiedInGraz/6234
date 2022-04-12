@@ -35,53 +35,86 @@ class _SymptomsState extends State<Symptoms> {
     }
   }
 
+  void itemChange(bool val, int index) {
+    setState(() {
+      if(val) {
+        symtpomList.add(checkBoxListTileModel[index].title);
+      } else {
+        symtpomList.remove(checkBoxListTileModel[index].title);
+      }
+      print(symtpomList);
+      checkBoxListTileModel[index].isCheck = val;
+    });
+  }
+
+  void updateDatabase(String symptom, bool checkLast) {
+    firestoreInstance.collection("Symptoms").add({
+      "symptom" : symptom,
+      "username" : username,
+      "submitTime" : Timestamp.now()
+    }).then((value){
+      print(value.id);
+      if(checkLast) {
+        Navigator.pop(context);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-          children: [
+        children: <Widget>[
           const ToolBar(title: "Symptoms"),
           Flexible(
             child: ListView.builder(
               itemCount: checkBoxListTileModel.length,
               itemBuilder: (BuildContext context, int index){
                 return Card(
-                    child: Container(
-                    padding: EdgeInsets.all(10.0),
-                      child: Column(
-                        children: <Widget>[
-                          CheckboxListTile(
-                           activeColor: Colors.pink[300],
-                           dense: true,
-                            //font change
-                            title: Text(
-                              checkBoxListTileModel[index].title,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.5
-                              ),
+                  child: Container(
+                  padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      children: <Widget>[
+                        CheckboxListTile(
+                          activeColor: Colors.pink[300],
+                          dense: true,
+                          title: Text(
+                            checkBoxListTileModel[index].title,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5
                             ),
-                            value: checkBoxListTileModel[index].isCheck,
-                            onChanged: null,
-                            // onChanged: (bool val) {
-                            //   setState(() {
-                            //     // if(val) {
-                            //     //   symtpomList.add(checkBoxListTileModel[index].title);
-                            //     // } else {
-                            //     //   symtpomList.remove(checkBoxListTileModel[index].title);
-                            //     // }
-                            //     //print(symtpomList);
-                            //     //checkBoxListTileModel[index].isCheck = val;
-                            //   });
-                            // }
-                          )
-                        ],
-                      ),
+                          ),
+                          value: checkBoxListTileModel[index].isCheck,
+                          onChanged: (bool? val) {
+                            itemChange(val!, index);
+                          }
+                        )
+                      ],
                     ),
+                  ),
                 );
               }
             )
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(50, 5, 50, 25),
+            child: MaterialButton(
+              minWidth: double.infinity,
+              color: Colors.lightBlue,
+              child: const Text('Submit Symptoms', style: TextStyle(color: Colors.white)),
+              onPressed: () async {
+                for(int i = 0; i < symtpomList.length; i++) {
+                  if(symtpomList.length - i == 1) {
+                    updateDatabase(symtpomList[i], true);
+                  } else {
+                    updateDatabase(symtpomList[i], false);
+                  }
+
+                }
+              }
+            ),
           )
         ]
       )

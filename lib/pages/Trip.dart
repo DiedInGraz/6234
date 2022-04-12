@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:cs6234/home/Toolbar.dart';
 import 'package:intl/intl.dart';
 
+const temp = 1;
+
 class Trips extends StatefulWidget {
   final String widgetTrip;
   final String widgetTripId;
-  const Trips({Key? key, this.widgetTrip = "", this.widgetTripId = ""}) : super(key: key);
+  final String widgetStartTime;
+  final String widgetEndTime;
+  const Trips({Key? key, this.widgetTrip = "", this.widgetTripId = "", this.widgetStartTime = "", this.widgetEndTime = ""}) : super(key: key);
 
   @override
   _TripsState createState() => _TripsState();
@@ -16,20 +20,32 @@ class Trips extends StatefulWidget {
 class _TripsState extends State<Trips> {
   final authInstance = FirebaseAuth.instance;
   final firestoreInstance = FirebaseFirestore.instance;
-  TextEditingController dateinput = TextEditingController();
+  TextEditingController dateinput1 = TextEditingController();
+  TextEditingController dateinput2 = TextEditingController();
   String trip = "";
   String tripId = "";
+  String startTime = "";
+  String endTime = "";
   String? username = "";
   String formattedDate_1 = "";
   String formattedDate_2 ="";
 
+  var firstPickedDate;
+  var secondPickedDate;
 
   @override
   void initState() {
-    dateinput.text = "";
+    dateinput1.text = "";
+    dateinput2.text = "";
     super.initState();
     trip = widget.widgetTrip;
     tripId = widget.widgetTripId;
+    startTime = widget.widgetStartTime;
+    endTime = widget.widgetEndTime;
+    if(startTime != "" && endTime != "") {
+      firstPickedDate = DateTime.parse(startTime);
+      secondPickedDate = DateTime.parse(endTime);
+    }
     final currentUser = authInstance.currentUser;
     if (currentUser != null) {
       username = currentUser.email;
@@ -58,30 +74,30 @@ class _TripsState extends State<Trips> {
               )
           ),
          Container (
-           padding: EdgeInsets.all(15),
+           padding: const EdgeInsets.all(15.0),
            height: 150,
            child:Center(
                child:TextField(
-                 controller: dateinput,
-                 decoration: InputDecoration(
+                 controller: dateinput1,
+                 decoration: const InputDecoration(
                      icon: Icon(Icons.calendar_today),
                      labelText: "Enter Start Date"
                    ),
                    readOnly: true,
                    onTap: () async{
-                    DateTime? pickedDate = await showDatePicker(
-                     context: context, initialDate: DateTime.now(),
+                     firstPickedDate = await showDatePicker(
+                     context: context, initialDate: firstPickedDate == null ? DateTime.now() : firstPickedDate,
                      firstDate: DateTime(2000),
                      lastDate: DateTime(2101)
                    );
 
-                   if(pickedDate != null){
-                     print(pickedDate);
-                     formattedDate_1 = DateFormat('yyyy-MM-dd').format(pickedDate);
+                   if(firstPickedDate != null){
+                     print(firstPickedDate);
+                     formattedDate_1 = DateFormat('yyyy-MM-dd').format(firstPickedDate!);
                      print(formattedDate_1);
 
                      setState(() {
-                       dateinput.text = formattedDate_1;
+                       dateinput1.text = formattedDate_1;
                      });
                    }else{
                      print("Date is not selected");
@@ -91,30 +107,30 @@ class _TripsState extends State<Trips> {
            )
          ),
          Container (
-             padding: EdgeInsets.all(15),
+             padding: const EdgeInsets.all(15.0),
              height: 150,
              child:Center(
                  child:TextField(
-                   controller: dateinput,
-                   decoration: InputDecoration(
+                   controller: dateinput2,
+                   decoration: const InputDecoration(
                        icon: Icon(Icons.calendar_today),
                        labelText: "Enter End Date"
                     ),
                     readOnly: true,
                     onTap: () async{
-                      DateTime? pickedDate = await showDatePicker(
-                          context: context, initialDate: DateTime.now(),
+                      secondPickedDate = await showDatePicker(
+                          context: context, initialDate: secondPickedDate == null ? DateTime.now() : secondPickedDate,
                           firstDate: DateTime(2000),
                           lastDate: DateTime(2101)
                       );
 
-                     if(pickedDate != null){
-                       print(pickedDate);
-                       formattedDate_2 = DateFormat('yyyy-MM-dd').format(pickedDate);
+                     if(secondPickedDate != null){
+                       print(secondPickedDate);
+                       formattedDate_2 = DateFormat('yyyy-MM-dd').format(secondPickedDate!);
                        print(formattedDate_2);
 
                        setState(() {
-                         dateinput.text = formattedDate_2;
+                         dateinput2.text = formattedDate_2;
                        });
                      }else{
                        print("Date is not selected");
@@ -144,7 +160,7 @@ class _TripsState extends State<Trips> {
                        "username" : username,
                        "submitTime" : Timestamp.now(),
                        "startTime": formattedDate_1,
-                       "endTime": formattedDate_2
+                       "endTime": formattedDate_2,
                      }).then((value){
                        print(value.id);
                        Navigator.pop(context);

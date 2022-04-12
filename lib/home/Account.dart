@@ -192,18 +192,18 @@ class _AccountState extends State<Account> {
                 }
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
-            child: MaterialButton(
-              //minWidth: double.infinity,
-                color: Colors.lightBlue,
-                child: const Text('Test Image Delete Later (Somehow logout. Need to click log out and login back again)', style: TextStyle(color: Colors.white)),
-                onPressed: () async {
-                  await authInstance.signOut();
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const TestPage()));
-                }
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
+          //   child: MaterialButton(
+          //     //minWidth: double.infinity,
+          //       color: Colors.lightBlue,
+          //       child: const Text('Test Image Delete Later (Somehow logout. Need to click log out and login back again)', style: TextStyle(color: Colors.white)),
+          //       onPressed: () async {
+          //         await authInstance.signOut();
+          //         Navigator.of(context).push(MaterialPageRoute(builder: (context) => const TestPage()));
+          //       }
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
             child: MaterialButton(
