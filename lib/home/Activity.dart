@@ -138,6 +138,7 @@ class _ActivityState extends State<Activity> {
   }
 
   detailContent(DocumentSnapshot ds) {
+    print(ds.data());
     switch(selectActivity) {
       case "Symptom":
         return RichText(
@@ -151,7 +152,7 @@ class _ActivityState extends State<Activity> {
             children: [
               const TextSpan(text: "Symptom: "),
               TextSpan(
-                text: ds.data().toString().contains('value') ? ds['value'].toString() : "",
+                text: ds.data().toString().contains('symptom') ? ds['symptom'].toString() : "",
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   color: Colors.black,
@@ -220,14 +221,33 @@ class _ActivityState extends State<Activity> {
             children: [
               const TextSpan(text: "Trip: "),
               TextSpan(
-                text: ds.data().toString().contains('trip') ? ds['trip'].toString() : "",
+                text: ds.data().toString().contains('trip') ? ds['trip'].toString(): "",
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   color: Colors.black,
                   fontSize: 15.0,
                   fontWeight: FontWeight.w700
                 )
-              )
+              ),
+              TextSpan(text: ds.data().toString().contains('startTime') ? " From: " + ds['startTime'].toString(): ""),
+              // TextSpan(
+              //   text: ds.data().toString().contains('startTime') ? ds['startTime'].toString() + " To: ": "",
+              //     style: const TextStyle(
+              //      fontFamily: 'Poppins',
+              //      color: Colors.black,
+              //      fontSize: 15.0,
+              //      fontWeight: FontWeight.w700
+              //   ),
+              // ),
+              TextSpan(
+                text: ds.data().toString().contains('endTime') ? " To: " + ds['endTime'].toString() : "",
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  color: Colors.black,
+                  fontSize: 15.0,
+                  // fontWeight: FontWeight.w600
+                ),
+              ),
             ]
           ),
         );
@@ -243,7 +263,7 @@ class _ActivityState extends State<Activity> {
             children: [
               const TextSpan(text: "News: "),
               TextSpan(
-                text: ds.data().toString().contains('value') ? ds['value'].toString() : "",
+                text: ds.data().toString().contains('news') ? ds['news'].toString() : "",
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   color: Colors.black,

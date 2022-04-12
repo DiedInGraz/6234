@@ -21,8 +21,8 @@ class FunctionalityCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         switch(functionality) {
-          case "Symptom":
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Symptom()));
+          case "Symptoms":
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Symptoms()));
             break;
           case "Medicines":
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Medicines()));

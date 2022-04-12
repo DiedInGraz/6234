@@ -42,7 +42,7 @@ class _DashboardState extends State<Dashboard> {
               physics: const ScrollPhysics(),
               children: const <Widget>[
                 FunctionalityCard(
-                  functionality: "Symptom",
+                  functionality: "Symptoms",
                   icon: Icons.announcement,
                 ),
                 FunctionalityCard(

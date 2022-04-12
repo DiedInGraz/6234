@@ -16,7 +16,7 @@ class ToolBar extends StatelessWidget {
 
   // cuisine.dart is not using this; need to modify that if Toolbar changed somewhere
   StatelessWidget _getToolBar(BuildContext context) { // return button
-    if(title == "Symptom" || title == "Medicines" || title == "Doctor" || title == "Trips" || title == "News" || title == "Food") {
+    if(title == "Symptoms" || title == "Medicines" || title == "Doctor" || title == "Trips" || title == "News" || title == "Food") {
       return Container(
         margin: const EdgeInsets.only(right: 16.0),
         //child: new BackButton(color: Colors.white),
