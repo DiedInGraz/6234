@@ -4,9 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Symptoms extends StatefulWidget {
-  final String widgetSymptom;
-  final String widgetSymptomId;
-  const Symptoms({Key? key, this.widgetSymptom = "", this.widgetSymptomId = ""}) : super(key: key);
+  final String widgetSymptoms;
+  final String widgetSymptomsId;
+  const Symptoms({Key? key, this.widgetSymptoms = "", this.widgetSymptomsId = ""}) : super(key: key);
 
   @override
   _SymptomsState createState() => _SymptomsState();
@@ -15,16 +15,18 @@ class Symptoms extends StatefulWidget {
 class _SymptomsState extends State<Symptoms> {
   final authInstance = FirebaseAuth.instance;
   final firestoreInstance = FirebaseFirestore.instance;
-  String symptom = "";
-  String symptomId = "";
+  String symptoms = "";
+  String symptomsId = "";
 
   String? username = "";
+  List<CheckBoxListTileModel> checkBoxListTileModel = CheckBoxListTileModel.getUsers();
+  List symtpomList = [];
 
   @override
   void initState() {
     super.initState();
-    symptom = widget.widgetSymptom;
-    symptomId = widget.widgetSymptomId;
+    symptoms = widget.widgetSymptoms;
+    symptomsId = widget.widgetSymptomsId;
     final currentUser = authInstance.currentUser;
     if (currentUser != null) {
       username = currentUser.email;
@@ -36,53 +38,89 @@ class _SymptomsState extends State<Symptoms> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(
-            children: [
-              const ToolBar(title: "Symptoms"),
-              Flexible(
-                  child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      child: TextField( // or using TextFormField and change initialValue
-                        controller: TextEditingController()..text = symptom,
-                        decoration: const InputDecoration(hintText: "Symptom"),
-                        keyboardType: TextInputType.name,
-                        onChanged: (value){
-                          symptom = value;
-                        },
-                      )
-                  )
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(50, 5, 50, 5),
-                child: MaterialButton(
-                    minWidth: double.infinity,
-                    color: Colors.lightBlue,
-                    child: const Text('Submit Symptoms', style: TextStyle(color: Colors.white)),
-                    onPressed: () async {
-                      if(symptomId != "") {
-                        firestoreInstance.collection("Symptoms").doc(symptomId).update({
-                          "symptom" : symptom,
-                          "username" : username,
-                          "submitTime" : Timestamp.now()
-                        }).then((value) => Navigator.pop(context));
-                      } else {
-                        firestoreInstance.collection("Symptoms").add({
-                          "symptom" : symptom,
-                          "username" : username,
-                          "submitTime" : Timestamp.now()
-                        }).then((value){
-                          print(value.id);
-                          Navigator.pop(context);
-                          // Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) =>
-                          //   const Dashboard()
-                          // ));
-                        });
-                      }
-                    }
-                ),
-              )
-            ]
-        )
+      body: Column(
+          children: [
+          const ToolBar(title: "Symptoms"),
+          Flexible(
+            child: ListView.builder(
+              itemCount: checkBoxListTileModel.length,
+              itemBuilder: (BuildContext context, int index){
+                return Card(
+                    child: Container(
+                    padding: EdgeInsets.all(10.0),
+                      child: Column(
+                        children: <Widget>[
+                          CheckboxListTile(
+                           activeColor: Colors.pink[300],
+                           dense: true,
+                            //font change
+                            title: Text(
+                              checkBoxListTileModel[index].title,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5
+                              ),
+                            ),
+                            value: checkBoxListTileModel[index].isCheck,
+                            onChanged: null,
+                            // onChanged: (bool val) {
+                            //   setState(() {
+                            //     // if(val) {
+                            //     //   symtpomList.add(checkBoxListTileModel[index].title);
+                            //     // } else {
+                            //     //   symtpomList.remove(checkBoxListTileModel[index].title);
+                            //     // }
+                            //     //print(symtpomList);
+                            //     //checkBoxListTileModel[index].isCheck = val;
+                            //   });
+                            // }
+                          )
+                        ],
+                      ),
+                    ),
+                );
+              }
+            )
+          )
+        ]
+      )
     );
+  }
+}
+
+class CheckBoxListTileModel {
+  String title;
+  bool isCheck;
+
+  CheckBoxListTileModel({this.title = "", this.isCheck = false});
+
+  static List<CheckBoxListTileModel> getUsers() {
+    return <CheckBoxListTileModel>[
+      CheckBoxListTileModel(
+          title: "Fatigue",
+          isCheck: false),
+      CheckBoxListTileModel(
+          title: "Dizziness",
+          isCheck: false),
+      CheckBoxListTileModel(
+          title: "Headaches",
+          isCheck: false),
+      CheckBoxListTileModel(
+          title: "Sore throat",
+          isCheck: false),
+      CheckBoxListTileModel(
+          title: "Muscle soreness",
+          isCheck: false),
+      CheckBoxListTileModel(
+          title: "Fever",
+          isCheck: false),
+      CheckBoxListTileModel(
+          title: "Loss of smell/taste ",
+          isCheck: false),
+      CheckBoxListTileModel(
+          title: "Cough",
+          isCheck: false),
+    ];
   }
 }
