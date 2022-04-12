@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cs6234/home/Toolbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cs6234/pages/Symptom.dart';
 import 'package:cs6234/pages/Medicines.dart';
@@ -8,6 +9,7 @@ import 'package:cs6234/pages/Doctor.dart';
 import 'package:cs6234/pages/Trip.dart';
 import 'package:cs6234/pages/News.dart';
 import 'package:cs6234/pages/Food.dart';
+import 'package:intl/intl.dart';
 
 class Activity extends StatefulWidget {
   const Activity({Key? key}) : super(key: key);
@@ -17,13 +19,30 @@ class Activity extends StatefulWidget {
 }
 
 class _ActivityState extends State<Activity> {
+  final authInstance = FirebaseAuth.instance;
   final firestoreInstance = FirebaseFirestore.instance;
 
-  var activitiList = ["Symptom", "Medicines", "Doctor Visit", "Trip", "News", "Take Out Food"];
+  var activitiList = ["Symptom", "Medicines", "Doctor Visit", "Trip", "News", "Take Out Food", "Apple Health"];
   var selectActivity = "Symptom";
   var selectActivityDatabase = "Symptoms";
 
   int? defaultChoiceIndex = 0;
+  String? username = "";
+
+  @override
+  void initState() {
+    super.initState();
+    final currentUser = authInstance.currentUser;
+    if (currentUser != null) {
+      print(currentUser);
+      username = currentUser.email;
+      print("here");
+    } else {
+      print(currentUser);
+      print("not login");
+    }
+  }
+
   scrollableRow() {
     return Wrap(
       spacing: 5,
@@ -33,7 +52,7 @@ class _ActivityState extends State<Activity> {
           label: Text(activitiList[index], style: const TextStyle(
               fontFamily: 'Poppins',
               color: Colors.white,
-              fontSize: 14.0,
+              fontSize: 13.0,
               fontWeight: FontWeight.w500
             )
           ),
@@ -63,6 +82,9 @@ class _ActivityState extends State<Activity> {
                 case "Take Out Food":
                   selectActivityDatabase = "Foods";
                   break;
+                case "Apple Health":
+                  selectActivityDatabase = "Health";
+                  break;
                 default:
                   break;
               }
@@ -70,7 +92,7 @@ class _ActivityState extends State<Activity> {
           },
           backgroundColor: Colors.lightBlue,
           elevation: 4,
-          padding: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+          padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
         );
       }),
     );
@@ -112,6 +134,12 @@ class _ActivityState extends State<Activity> {
     });
   }
 
+  deleteHealth(String documentId) {
+    firestoreInstance.collection("Health").doc(documentId).delete().then((value){
+      print("Success delete take out food!");
+    });
+  }
+
   deleteFunctionality(String documentId) {
     switch(selectActivity) {
       case "Symptom":
@@ -131,6 +159,9 @@ class _ActivityState extends State<Activity> {
         break;
       case "Take Out Food":
         deleteFoods(documentId);
+        break;
+      case "Apple Health":
+        deleteHealth(documentId);
         break;
       default:
         break;
@@ -297,6 +328,38 @@ class _ActivityState extends State<Activity> {
             ]
           ),
         );
+      case "Apple Health":
+        return RichText(
+          text: TextSpan(
+            style: const TextStyle(
+              fontFamily: 'Poppins',
+              color: Colors.black,
+              fontSize: 15.0,
+              fontWeight: FontWeight.w400
+            ),
+            children: [
+              TextSpan(text: ds.data().toString().contains('date') ? DateFormat("yyyy-MM-dd").format(ds['date'].toDate()).toString() + " ": ""),
+              TextSpan(
+                text: ds.data().toString().contains('steps') ? "steps: " + ds['steps'].toString() : "",
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  color: Colors.black,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w700
+                )
+              ),
+              TextSpan(
+                text: ds.data().toString().contains('distance') ? " distance: " + ds['distance'].toString() : "",
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  color: Colors.black,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w700
+                )
+              )
+            ]
+          ),
+        );
       default:
         break;
     }
@@ -304,7 +367,7 @@ class _ActivityState extends State<Activity> {
 
   showDetail() {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection(selectActivityDatabase).snapshots(),
+      stream: FirebaseFirestore.instance.collection(selectActivityDatabase).where("username", isEqualTo: username).orderBy('submitTime', descending: true).snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if(!snapshot.hasData) {
           return const Center(
@@ -331,7 +394,7 @@ class _ActivityState extends State<Activity> {
                         deleteFunctionality(ds.id);
                       }),
                       children: [
-                        SlidableAction(
+                        selectActivity != "Apple Health" ? SlidableAction(
                           // An action can be bigger than the others.
                           flex: 2,
                           onPressed: (_) {
@@ -362,7 +425,7 @@ class _ActivityState extends State<Activity> {
                           foregroundColor: Colors.white,
                           icon: Icons.border_color,
                           label: 'Modify',
-                        ),
+                        ) : Container(),
                         SlidableAction(
                           // An action can be bigger than the others.
                           flex: 2,
