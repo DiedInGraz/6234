@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cs6234/home/Toolbar.dart';
 import 'package:health/health.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cs6234/auth/SignIn.dart';
 import 'package:cs6234/auth/TestImage.dart';
+import 'package:intl/intl.dart';
 
 class Account extends StatefulWidget {
   const Account({Key? key}) : super(key: key);
@@ -15,6 +17,7 @@ class Account extends StatefulWidget {
 class _AccountState extends State<Account> {
 
   final authInstance = FirebaseAuth.instance;
+  final firestoreInstance = FirebaseFirestore.instance;
   HealthFactory health = HealthFactory();
 
   List<HealthDataPoint> _healthDataList = [];
@@ -50,6 +53,10 @@ class _AccountState extends State<Account> {
         });
   }
 
+  List<DataRow> createRow = [];
+  List<DataColumn> createColumn = [];
+  bool pressSyncHealth = false;
+
   Future fetchData() async {
     final types = [
       HealthDataType.STEPS,
@@ -61,32 +68,48 @@ class _AccountState extends State<Account> {
       HealthDataAccess.READ,
     ];
 
-    final now = DateTime.now();
-    final yesterday = now.subtract(Duration(days: 1));
-    final beginning = DateTime(now.year, now.month, now.day);
+    createColumn = [
+      const DataColumn(label: Text('Date')),
+      const DataColumn(label: Text('Steps')),
+      const DataColumn(label: Text('Distance(meter)'))
+    ];
+    createRow = [];
 
+    final now = DateTime.now();
+    var startingDay = now.subtract(const Duration(days: 3));
+    final starting = DateTime(startingDay.year, startingDay.month, startingDay.day, 0, 0, 0);
+    var beginning = DateTime(now.year, now.month, now.day);
 
     bool requested = await health.requestAuthorization(types, permissions: permissions);
 
     if (requested) {
       try {
-        List<HealthDataPoint> healthData = await health.getHealthDataFromTypes(beginning, now, types);
+        List<HealthDataPoint> healthData = await health.getHealthDataFromTypes(starting, now, types);
         totalSteps = 0;
         totalDistance = 0;
         setState(() {
-          for(int i = 0; i < healthData.length; i++) {
-            if(healthData[i].typeString == "STEPS") {
-              totalSteps += healthData[i].value;
+          while(starting.isBefore(beginning)) {
+            for(int i = 0; i < healthData.length; i++) {
+              if(healthData[i].typeString == "STEPS" && healthData[i].dateFrom.isAfter(beginning) && healthData[i].dateFrom.isBefore(beginning.add(const Duration(days: 1)))) {
+                totalSteps += healthData[i].value;
+              }
+              if(healthData[i].typeString == "DISTANCE_WALKING_RUNNING" && healthData[i].dateFrom.isAfter(beginning) && healthData[i].dateFrom.isBefore(beginning.add(const Duration(days: 1)))) {
+                totalDistance += healthData[i].value;
+              }
+              totalDistance = totalDistance.roundToDouble();
             }
-            if(healthData[i].typeString == "DISTANCE_WALKING_RUNNING") {
-              totalDistance += healthData[i].value;
-            }
+            createRow.add(DataRow(cells: [
+              DataCell(Text(DateFormat("yyyy-MM-dd").format(beginning))),
+              DataCell(Text(totalSteps.toString())),
+              DataCell(Text(totalDistance.toString()))
+            ]));
+            updateHealthDatabase(beginning, totalSteps, totalDistance);
+            totalSteps = 0;
+            totalDistance = 0;
+            beginning = beginning.subtract(const Duration(days: 1));
           }
-          totalDistance = totalDistance.roundToDouble();
         });
 
-
-        //print(healthData);
         _healthDataList.addAll((healthData.length < 100)
             ? healthData
             : healthData.sublist(0, 100));
@@ -95,12 +118,32 @@ class _AccountState extends State<Account> {
       }
 
       _healthDataList = HealthFactory.removeDuplicates(_healthDataList);
-
     } else {
       print("Authorization not granted");
     }
   }
 
+  updateHealthDatabase(DateTime currentDay, num steps, num distance) {
+    firestoreInstance.collection("Health").where("username", isEqualTo: username).where("date", isEqualTo: currentDay).get().then((string) {
+      if(string.docs.isEmpty) {
+        firestoreInstance.collection("Health").add({
+          "steps" : steps,
+          "distance" : distance,
+          "username" : username,
+          "date": currentDay,
+          "submitTime" : Timestamp.now()
+        });
+      } else {
+        firestoreInstance.collection("Health").doc(string.docs[0].id).update({
+          "steps" : steps,
+          "distance" : distance,
+          "username" : username,
+          "date": currentDay,
+          "submitTime" : Timestamp.now()
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,23 +212,32 @@ class _AccountState extends State<Account> {
                 child: const Text('Sync Data from Apple Health', style: TextStyle(color: Colors.white)),
                 onPressed: () {
                   fetchData();
+                  setState(() {
+                    pressSyncHealth = true;
+                  });
                 }
             ),
           ),
-          Text("Today step is: " + totalSteps.toString(), style: const TextStyle(
-              fontFamily: 'Poppins',
-              color: Colors.lightBlueAccent,
-              fontSize: 25.0,
-              fontWeight: FontWeight.w600
-          )),
-          Text("Today distance in meter is: " + totalDistance.toString(), style: const TextStyle(
-              fontFamily: 'Poppins',
-              color: Colors.lightBlueAccent,
-              fontSize: 25.0,
-              fontWeight: FontWeight.w600
-          )),
+          // Text("Today step is: " + totalSteps.toString(), style: const TextStyle(
+          //     fontFamily: 'Poppins',
+          //     color: Colors.lightBlueAccent,
+          //     fontSize: 25.0,
+          //     fontWeight: FontWeight.w600
+          // )),
+          // Text("Today distance in meter is: " + totalDistance.toString(), style: const TextStyle(
+          //     fontFamily: 'Poppins',
+          //     color: Colors.lightBlueAccent,
+          //     fontSize: 25.0,
+          //     fontWeight: FontWeight.w600
+          // )),
           //Expanded(child: _contentDataReady())
-
+          pressSyncHealth ? Expanded(
+            child: ListView(
+              children: [
+                DataTable(columns: createColumn, rows: createRow)
+              ],
+            )
+          ) : Container()
         ]
       )
     );
