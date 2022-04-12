@@ -21,6 +21,6 @@ main.dart is under lib folder
 
 ## Other Resource
 
-- [Demo Video](https://drive.google.com/file/d/1oKuOP8P8w9uXHK17SrVzqFqnICtOCtsO/view?usp=sharing)
+- Demo Video: demo video could find in the powerpoint link
 - Some Diagram: you could find them under diagram folder
 
