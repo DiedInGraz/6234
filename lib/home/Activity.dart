@@ -559,7 +559,7 @@ class _ActivityState extends State<Activity> {
                                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => Trips(widgetTrip: ds['trip'], widgetTripId: ds.id, widgetStartTime: ds['startTime'], widgetEndTime: ds['endTime'])));
                                 break;
                               case "News":
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => Medicines(widgetMedicine: ds['medicine'], widgetMedicineId: ds.id)));
+                                Navigator.of(context).push(MaterialPageRoute(builder: (context) => News(widgetNews: ds['medicine'], widgetNewsId: ds.id)));
                                 break;
                               case "Take Out Food":
                                 Navigator.of(context).push(MaterialPageRoute(builder: (context) => Food(widgetFood: ds['food'], widgetFoodId: ds.id)));

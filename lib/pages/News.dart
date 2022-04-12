@@ -6,7 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 class News extends StatefulWidget {
   final String widgetNews;
   final String widgetNewsId;
-  const News({Key? key, this.widgetNews = "", this.widgetNewsId = ""}) : super(key: key);
+  final String widgetAlertEmail;
+  const News({Key? key, this.widgetNews = "", this.widgetNewsId = "", this.widgetAlertEmail = ""}) : super(key: key);
 
   @override
   _NewsState createState() => _NewsState();
@@ -26,6 +27,7 @@ class _NewsState extends State<News> {
     super.initState();
     news = widget.widgetNews;
     newsId = widget.widgetNewsId;
+    alertEmail = widget.widgetAlertEmail;
     final currentUser = authInstance.currentUser;
     if (currentUser != null) {
       username = currentUser.email;
@@ -77,6 +79,7 @@ class _NewsState extends State<News> {
                 if(newsId != "") {
                   firestoreInstance.collection("News").doc(newsId).update({
                     "news" : news,
+                    "alertEmail" : alertEmail,
                     "username" : username,
                     "submitTime" : Timestamp.now()
                   }).then((value) => Navigator.pop(context));
